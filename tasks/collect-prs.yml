@@ -7,6 +7,7 @@ image_resource:
     tag: latest
 
 inputs:
+  - name: concourse-prs
   - name: community-metrics
 
 run:
