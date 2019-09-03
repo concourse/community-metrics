@@ -1,0 +1,44 @@
+---
+resource_types:
+- name: pull-request
+  type: docker-image
+  source:
+    repository: teliaoss/github-pr-resource
+- name: datadog-event
+  type: docker-image
+  source:
+    repository: concourse/datadog-event-resource
+
+resources:
+- name: community-metrics
+  type: git
+  source:
+    uri: https://github.com/concourse/community-metrics
+    branch: master
+- name: datadog-event
+  type: datadog-event
+  source:
+    api_key: ((datadog_api_key))
+    application_key: ((datadog_application_key))
+- name: concourse-prs
+  type: pull-request
+  check_every: 24h
+  source:
+    repository: concourse/concourse
+    access_token: ((concourse_github_dummy.access_token))
+
+jobs:
+- name: hello
+  plan:
+  - get: concourse-prs
+  - get: community-metrics
+  - task: see-prs
+    file: community-metrics/tasks/collect-prs.yml
+  - put: datadog-event
+    params:
+      title: Did you hear the news today?
+      text: Oh boy!
+      priority: normal
+      tags:
+      - "environment:community-metrics"
+      alert_type: info

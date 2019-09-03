@@ -1,0 +1,13 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: busybox
+    tag: latest
+
+inputs:
+  - name: community-metrics
+
+run:
+  path: community-metrics/tasks/collect-prs.sh
